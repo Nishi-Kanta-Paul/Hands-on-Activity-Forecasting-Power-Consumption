@@ -1,4 +1,4 @@
-```markdown
+```
 # Power Consumption Forecasting Project
 
 This project implements and compares different deep learning models for forecasting power consumption across three zones using weather and historical consumption data.
