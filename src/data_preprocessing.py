@@ -87,19 +87,33 @@ print(data.isna().sum())
 
 class DataPreprocessor:
     def __init__(self):
-        # Create necessary directories
-        os.makedirs('data/processed', exist_ok=True)
+        # Get absolute paths
+        self.src_dir = os.path.dirname(os.path.abspath(__file__))
+        self.project_root = os.path.dirname(self.src_dir)
 
-        # Initialize data attributes
+        # Set up paths
+        self.data_dir = os.path.join(self.project_root, 'data')
+        self.processed_dir = os.path.join(self.data_dir, 'processed')
+        self.data_path = os.path.join(self.data_dir, 'powerconsumption.csv')
+
+        # Print paths for debugging
+        print(f"Project structure:")
+        print(f"Project root: {self.project_root}")
+        print(f"Data directory: {self.data_dir}")
+        print(f"Processed directory: {self.processed_dir}")
+        print(f"Data file: {self.data_path}")
+
+        # Create directories
+        os.makedirs(self.processed_dir, exist_ok=True)
+        print(
+            f"\nCreated/verified processed directory at: {self.processed_dir}")
+
+        # Initialize attributes
         self.train_data = None
         self.val_data = None
         self.test_data = None
         self.feature_columns = None
         self.scaler = None
-
-        # Set data paths
-        self.data_path = 'Hands-on-Activity-Forecasting-Power-Consumption/data/powerconsumption.csv'
-        self.processed_dir = 'data/processed'
 
     def preprocess(self):
         """Main preprocessing function"""
@@ -182,10 +196,21 @@ class DataPreprocessor:
 
     def save_preprocessed_data(self):
         """Save preprocessed data to files"""
-        # Save train, validation, and test data
-        np.save('data/processed/train_data.npy', self.train_data)
-        np.save('data/processed/val_data.npy', self.val_data)
-        np.save('data/processed/test_data.npy', self.test_data)
+        # Define paths
+        train_path = os.path.join(self.processed_dir, 'train_data.npy')
+        val_path = os.path.join(self.processed_dir, 'val_data.npy')
+        test_path = os.path.join(self.processed_dir, 'test_data.npy')
+        info_path = os.path.join(self.processed_dir, 'preprocessing_info.json')
+
+        print("\nSaving preprocessed data to:")
+        print(f"Train data: {train_path}")
+        print(f"Val data: {val_path}")
+        print(f"Test data: {test_path}")
+
+        # Save data
+        np.save(train_path, self.train_data)
+        np.save(val_path, self.val_data)
+        np.save(test_path, self.test_data)
 
         # Save preprocessing info
         preprocessing_info = {
@@ -196,13 +221,15 @@ class DataPreprocessor:
             'timestamp': str(pd.Timestamp.now())
         }
 
-        with open('data/processed/preprocessing_info.json', 'w') as f:
+        with open(info_path, 'w') as f:
             json.dump(preprocessing_info, f, indent=4)
 
-        print("\nPreprocessed data saved successfully!")
-        print(f"Train data shape: {self.train_data.shape}")
-        print(f"Validation data shape: {self.val_data.shape}")
-        print(f"Test data shape: {self.test_data.shape}")
+        # Verify files were created
+        print("\nVerifying saved files:")
+        print(f"Train data exists: {os.path.exists(train_path)}")
+        print(f"Val data exists: {os.path.exists(val_path)}")
+        print(f"Test data exists: {os.path.exists(test_path)}")
+        print(f"Info exists: {os.path.exists(info_path)}")
 
 
 def main():

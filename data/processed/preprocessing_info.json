@@ -1,0 +1,25 @@
+{
+    "train_shape": [
+        36692,
+        8
+    ],
+    "val_shape": [
+        5241,
+        8
+    ],
+    "test_shape": [
+        10483,
+        8
+    ],
+    "features": [
+        "Temperature",
+        "Humidity",
+        "WindSpeed",
+        "GeneralDiffuseFlows",
+        "DiffuseFlows",
+        "PowerConsumption_Zone1",
+        "PowerConsumption_Zone2",
+        "PowerConsumption_Zone3"
+    ],
+    "timestamp": "2025-01-30 00:40:40.565151"
+}
