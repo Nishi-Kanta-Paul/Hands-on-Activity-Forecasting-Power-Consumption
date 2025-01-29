@@ -7,7 +7,7 @@ import numpy as np
 
 class PatchTST(nn.Module):
     def __init__(self, input_dim, output_dim, patch_len, stride, num_patches,
-                 d_model=128, nhead=8, num_layers=3, dim_feedforward=256,
+                 d_model=32, nhead=2, num_layers=1, dim_feedforward=64,
                  dropout=0.1, activation="gelu"):
         super().__init__()
 
@@ -17,6 +17,7 @@ class PatchTST(nn.Module):
         self.patch_len = patch_len
         self.stride = stride
         self.num_patches = num_patches
+        self.d_model = d_model
 
         # Patch embedding
         self.patch_embedding = PatchEmbedding(
@@ -36,29 +37,30 @@ class PatchTST(nn.Module):
             batch_first=True
         )
         self.transformer_encoder = nn.TransformerEncoder(
-            encoder_layer,
-            num_layers=num_layers
+            encoder_layer, num_layers=num_layers
         )
 
-        # Output head
+        # Final prediction head
         self.head = nn.Linear(d_model * num_patches, output_dim)
 
     def forward(self, x):
-        # x shape: [batch_size, seq_len, input_dim]
+        # Input shape: [batch_size, seq_length, input_dim]
+        batch_size = x.shape[0]
 
-        # Create patches and embed
-        x = self.patch_embedding(x)  # [batch_size, num_patches, d_model]
+        # Patch embedding: [batch_size, num_patches, d_model]
+        x = self.patch_embedding(x)
 
         # Add positional encoding
         x = self.pos_embedding(x)
 
-        # Transform
+        # Transformer encoder
         x = self.transformer_encoder(x)
 
-        # Flatten and predict
-        batch_size = x.shape[0]
-        x = x.reshape(batch_size, -1)  # [batch_size, num_patches * d_model]
-        x = self.head(x)  # [batch_size, output_dim]
+        # Reshape: [batch_size, num_patches * d_model]
+        x = x.reshape(batch_size, self.num_patches * self.d_model)
+
+        # Final prediction: [batch_size, output_dim]
+        x = self.head(x)
 
         return x
 
@@ -66,7 +68,6 @@ class PatchTST(nn.Module):
 class PatchEmbedding(nn.Module):
     def __init__(self, input_dim, d_model, patch_len, stride):
         super().__init__()
-
         self.input_dim = input_dim
         self.d_model = d_model
         self.patch_len = patch_len
